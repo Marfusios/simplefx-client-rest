@@ -11,6 +11,6 @@ deploy:
   provider: script
   skip_cleanup: true
   script:
-    - cd generated/SimpleFx.Client.Generated && dotnet pack /p:PackageVersion=1.0.$TRAVIS_BUILD_NUMBER -c Release && cd bin/Release && dotnet nuget push **/*.1.0.$TRAVIS_BUILD_NUMBER.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+    - cd generated/src/SimpleFx.Client.Generated && dotnet pack /p:PackageVersion=1.0.$TRAVIS_BUILD_NUMBER -c Release && cd bin/Release && dotnet nuget push **/*.1.0.$TRAVIS_BUILD_NUMBER.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
   on:
     branch: master
