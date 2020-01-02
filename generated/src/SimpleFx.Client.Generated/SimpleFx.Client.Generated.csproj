@@ -33,7 +33,7 @@ The version of the OpenAPI document: 2.0
     <PackageTags>SimpleFx rest client cryptocurrency exchange bitcoin</PackageTags>
     <PackageLicenseUrl>https://github.com/Marfusios/simplefx-client-rest/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Marfusios/simplefx-client-rest</PackageProjectUrl>
-    <PackageIconUrl>https://res-5.cloudinary.com/crunchbase-production/image/upload/c_lpad,h_256,w_256,f_auto,q_auto:eco/v1449704576/rv8l2cs2cbyermcr283w.png</PackageIconUrl>
+    <PackageIconUrl>https://www.newsbtc.com/wp-content/uploads/2016/01/simplefxcom_1.jpg</PackageIconUrl>
     <RepositoryUrl>https://github.com/Marfusios/simplefx-client-rest</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
