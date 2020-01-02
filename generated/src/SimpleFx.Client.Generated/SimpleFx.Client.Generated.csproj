@@ -22,6 +22,24 @@ The version of the OpenAPI document: 2.0
     <TargetFramework>netstandard2.0</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\SimpleFx.Client.Generated.xml</DocumentationFile>
+
+    <PackageId>SimpleFx.Client.Rest.Generated</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Mariusz Kotas</Authors>
+    <Description>Client for SimpleFx</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <Copyright>Copyright 2020 Mariusz Kotas. All rights reserved.</Copyright>
+    <PackageTags>SimpleFx rest client cryptocurrency exchange bitcoin</PackageTags>
+    <PackageLicenseUrl>https://github.com/Marfusios/simplefx-client-rest/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Marfusios/simplefx-client-rest</PackageProjectUrl>
+    <PackageIconUrl>https://www.newsbtc.com/wp-content/uploads/2016/01/simplefxcom_1.jpg</PackageIconUrl>
+    <RepositoryUrl>https://github.com/Marfusios/simplefx-client-rest</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
