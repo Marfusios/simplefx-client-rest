@@ -1,0 +1,1478 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"version": "2.0",
+		"title": "SimpleFX"
+	},
+	"servers": [{
+		"url": "https://rest.simplefx.com"
+	}],
+	"paths": {
+		"/api/v3/auth/key": {
+			"post": {
+				"tags": [
+					"AUTHENTICATION"
+				],
+				"security": [],
+				"summary": "Obtain auhtorization token for other requests",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": [
+									"clientId",
+									"clientSecret"
+								],
+								"properties": {
+									"clientId": {
+										"type": "string",
+										"description": "Api Key Id"
+									},
+									"clientSecret": {
+										"type": "string",
+										"description": "Api Key Secret"
+									}
+								}
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"required": [
+										"data",
+										"code",
+										"message"
+									],
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "object",
+											"properties": {
+												"token": {
+													"type": "string",
+													"description": "token for authorization"
+												}
+											}
+										},
+										"code": {
+											"type": "integer",
+											"example": 200
+										},
+										"message": {
+											"type": "string"
+										},
+										"webRequestId": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/utils/instruments.json": {
+			"get": {
+				"tags": [
+					"Market"
+				],
+				"servers": [{
+					"url": "https://simplefx.com"
+				}],
+				"security": [],
+				"summary": "List tradable instruments",
+				"description": "List all tradable assets (instruments, equities, securities).",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object",
+										"properties": {
+											"symbol": {
+												"type": "string",
+												"example": "BTCUSD",
+												"description": "Instrument symbol (ticker)"
+											},
+											"priceCurrency": {
+												"type": "string",
+												"example": "USD",
+												"description": "Currency in which this instrument is quoted."
+											},
+											"marginCurrency": {
+												"type": "string",
+												"example": "BTC",
+												"description": "Currency in which this instrument is valued."
+											},
+											"quote": {
+												"type": "object",
+												"description": "Hint price from the past",
+												"properties": {
+													"a": {
+														"type": "number",
+														"format": "double",
+														"example": 8050.33,
+														"description": "Ask price aka offer"
+													},
+													"b": {
+														"type": "number",
+														"format": "double",
+														"example": 7902.21,
+														"description": "Bid"
+													},
+													"t": {
+														"type": "number",
+														"format": "integer",
+														"example": 1532683812,
+														"description": "Unix timestamp of this price."
+													}
+												}
+											},
+											"marginPercentage": {
+												"type": "number",
+												"format": "double",
+												"example": 10000.0,
+												"description": "Margin requirments for this instrument.\r\n Required margin for transaciton is PRICE*marginPercentage/100*volume*contractSize/account.leverage"
+											},
+											"contractSize": {
+												"type": "number",
+												"format": "double",
+												"example": 100.0,
+												"description": "Size of transaciton with volume of 1 aka Multiplier."
+											},
+											"step": {
+												"type": "number",
+												"format": "double",
+												"example": 0.01,
+												"description": "Allowed volume trading precision and minimum transaciton size for this instrument."
+											},
+											"maxSize": {
+												"type": "number",
+												"format": "double",
+												"example": 0.1,
+												"description": "Maximum trading volume for single request."
+											},
+											"longOnly": {
+												"type": "boolean",
+												"example": false,
+												"description": "If only long positions (BUY) are allowed for this symbol."
+											},
+											"sessions": {
+												"type": "array",
+												"description": "Trade sessions describes time when this instrument is tradable",
+												"items": {
+													"type": "object",
+													"properties": {
+														"open": {
+															"type": "integer",
+															"example": 0,
+															"description": "session start in seconds from the begining of the week - from sunday 24:00/ sutarday 0:00 midnight"
+														},
+														"close": {
+															"type": "integer",
+															"example": 604800,
+															"description": "session end in seconds from the begining of the week - from sunday 24:00/ sutarday 0:00 midnight"
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v3/accounts": {
+			"get": {
+				"tags": [
+					"Accounts"
+				],
+				"summary": "List your trading and demo accounts",
+				"description": "This Request is limmited. \nIt can not be called more than once per 5 minutes. \nClient shall store and track account status returned with trade execution report.",
+				"operationId": "V3Accounts_GetAccounts",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"required": [
+										"data",
+										"code",
+										"message"
+									],
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/Mt4Account"
+											}
+										},
+										"code": {
+											"type": "integer",
+											"example": 200
+										},
+										"message": {
+											"type": "string"
+										},
+										"webRequestId": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v3/accounts/{reality}/{account}": {
+			"get": {
+				"tags": [
+					"Accounts"
+				],
+				"summary": "Get status of an account",
+				"description": "This Request is limmited. \nIt can not be called more than once per 5 minutes. \nClient shall store and track account status returned with trade execution report.",
+				"operationId": "V3Accounts_GetAccount",
+				"parameters": [{
+						"in": "path",
+						"name": "reality",
+						"schema": {
+							"$ref": "#/components/schemas/Reality"
+						}
+					},
+					{
+						"in": "path",
+						"name": "account",
+						"schema": {
+							"$ref": "#/components/schemas/AccountNumber"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"required": [
+										"data",
+										"code",
+										"message"
+									],
+									"type": "object",
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/Mt4Account"
+										},
+										"code": {
+											"type": "integer",
+											"example": 200
+										},
+										"message": {
+											"type": "string"
+										},
+										"webRequestId": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v3/trading/orders/market": {
+			"post": {
+				"tags": [
+					"Trading"
+				],
+				"summary": "BUY or SELL by market price",
+				"description": "Buy or sell assests now.\r\n Depending on IsFIFO property, closes open positions with FIFO rule or opens a new - possibly hedged - position.",
+				"operationId": "V3Trading_OpenMarketOrder",
+				"responses": {
+					"200": {
+						"$ref": "#/components/schemas/OK_MarketExecutionReport_"
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/OpenMarketOrderModel"
+							}
+						}
+					},
+					"required": true
+				}
+			},
+			"put": {
+				"tags": [
+					"Trading"
+				],
+				"summary": "Change takeprofit or stoploss of position",
+				"operationId": "V3Trading_UpdateMarketOrder",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"description": "list of orders",
+								"schema": {
+									"required": [
+										"data",
+										"code",
+										"message"
+									],
+									"type": "object",
+									"properties": {
+										"data": {
+											"description": "List of positions modified or created with this request.",
+											"type": "object",
+											"properties": {
+												"marketTrades": {
+													"$ref": "#/components/schemas/MarketActions"
+												}
+											}
+										},
+										"code": {
+											"type": "integer",
+											"example": 200
+										},
+										"message": {
+											"type": "string"
+										},
+										"webRequestId": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"Login": {
+										"$ref": "#/components/schemas/AccountNumber"
+									},
+									"Reality": {
+										"$ref": "#/components/schemas/Reality"
+									},
+									"Id": {
+										"type": "decimal",
+										"format": "integer",
+										"example": 123456,
+										"description": "Position id."
+									},
+									"TakeProfit": {
+										"type": "decimal",
+										"format": "double",
+										"example": 123.4555
+									},
+									"StopLoss": {
+										"type": "decimal",
+										"format": "decimal",
+										"example": 123.4555
+									}
+								}
+							}
+						}
+					},
+					"required": true
+				}
+			},
+			"delete": {
+				"tags": [
+					"Trading"
+				],
+				"summary": "Close single position.",
+				"description": "Close selected position. Or patialy close this position by specified volume.",
+				"operationId": "V3Trading_CloseMarketOrder",
+				"responses": {
+					"200": {
+						"$ref": "#/components/schemas/OK_MarketExecutionReport_"
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CloseMarketOrderModel"
+							}
+						}
+					},
+					"required": true
+				}
+			}
+		},
+		"/api/v3/trading/orders/market/bysymbol": {
+			"delete": {
+				"tags": [
+					"Trading"
+				],
+				"summary": "Clear position on symbol.",
+				"description": "Closes all positions opened on specified symbol.",
+				"operationId": "V3Trading_CloseAllBySymbol",
+				"responses": {
+					"200": {
+						"$ref": "#/components/schemas/OK_MarketExecutionReport_"
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CloseAllBySymbolModel"
+							}
+						}
+					},
+					"required": true
+				}
+			}
+		},
+		"/api/v3/trading/orders/market/closemany": {
+			"delete": {
+				"tags": [
+					"Trading"
+				],
+				"summary": "Close multiple positions.",
+				"description": "Close selected positions on single symbol.",
+				"operationId": "V3Trading_CloseMany",
+				"responses": {
+					"200": {
+						"$ref": "#/components/schemas/OK_MarketExecutionReport_"
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CloseManyModel"
+							}
+						}
+					},
+					"required": true
+				}
+			}
+		},
+		"/api/v3/trading/orders/pending": {
+			"post": {
+				"tags": [
+					"Trading"
+				],
+				"summary": "Place pending order",
+				"description": "Place an order activated when price reaches @ActivationPrice.\r\n <br />When @Instrument price reaches @ActivationPrice the order is imiedietly executed on market price.",
+				"operationId": "V3Trading_OpenPendingOrder",
+				"responses": {
+					"200": {
+						"$ref": "#/components/schemas/OK_PendingExecutionReport_"
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/OpenPendingOrderModel"
+							}
+						}
+					},
+					"required": true
+				}
+			},
+			"put": {
+				"tags": [
+					"Trading"
+				],
+				"summary": "Modify pending order.",
+				"description": "Change parameters of this order",
+				"operationId": "V3Trading_UpdateOrder",
+				"responses": {
+					"200": {
+						"$ref": "#/components/schemas/OK_PendingExecutionReport_"
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateOrderModel"
+							}
+						}
+					},
+					"required": true
+				}
+			},
+			"delete": {
+				"tags": [
+					"Trading"
+				],
+				"summary": "Cancel pending order.",
+				"description": "Cancel pending order that has not been activated yet.",
+				"operationId": "V3Trading_DeletePendingOrder",
+				"responses": {
+					"200": {
+						"$ref": "#/components/schemas/OK_PendingExecutionReport_"
+					}
+				},
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DeletePendingOrderModel"
+							}
+						}
+					},
+					"required": true
+				}
+			}
+		},
+		"/api/v3/trading/orders/active": {
+			"post": {
+				"tags": [
+					"Trading"
+				],
+				"summary": "Get positions and pending orders.",
+				"description": "Lists all active opened positions and active pending orders.",
+				"operationId": "V3Trading_GetActiveOrders",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": ["login", "reality"],
+								"properties": {
+									"login": {
+										"$ref": "#/components/schemas/AccountNumber"
+									},
+									"reality": {
+										"$ref": "#/components/schemas/Reality"
+									}
+								}
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"$ref": "#/components/schemas/OK_OrdersState_"
+					}
+				}
+			}
+		},
+		"/api/v3/trading/orders/history": {
+			"post": {
+				"tags": [
+					"Trading"
+				],
+				"summary": "Get closed/inactive orders and positions.",
+				"description": "",
+				"operationId": "V3Trading_GetHistoryOrders",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": ["login", "reality", "timeFrom", "timeTo"],
+								"properties": {
+									"login": {
+										"$ref": "#/components/schemas/AccountNumber"
+									},
+									"reality": {
+										"$ref": "#/components/schemas/Reality"
+									},
+									"timeFrom": {
+										"type": "decimal",
+										"format": "integer",
+										"example": 1262304000000,
+										"description": "Milliseconds since unix epoch"
+									},
+									"timeTo": {
+										"type": "decimal",
+										"format": "integer",
+										"example": 1262304000000
+									}
+								}
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"$ref": "#/components/schemas/OK_OrdersState_"
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"securitySchemes": {
+			"bearerAuth": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "Bearer"
+			}
+		},
+		"schemas": {
+			"Reality": {
+				"format": "string",
+				"description": "Account LIVE or DEMO",
+				"enum": [
+					"DEMO",
+					"LIVE"
+				],
+				"type": "string",
+				"example": "DEMO"
+			},
+			"AccountNumber": {
+				"description": "Corseponding Account",
+				"type": "integer",
+				"example": 460071
+			},
+			"AccountStatus": {
+				"description": "Static balance and floating equity.",
+				"type": "object",
+				"properties": {
+					"balance": {
+						"type": "decimal",
+						"format": "double",
+						"example": 50000.00,
+						"description": "Current account balance."
+					},
+					"equity": {
+						"type": "decimal",
+						"format": "double",
+						"example": 50012.24,
+						"description": "Balance + profit of opened positions. Depends on current market price."
+					},
+					"margin": {
+						"type": "decimal",
+						"format": "double",
+						"example": 20000.00,
+						"description": "Amount blocked for opened positions."
+					},
+					"freeMargin": {
+						"type": "decimal",
+						"format": "double",
+						"example": 20000.00,
+						"description": "Equity - margin, amount free for opening new positions."
+					},
+					"marginLevel": {
+						"format": "double",
+						"type": "number",
+						"description": "Margin level in percentage. Margin level of 100 mean all positions are covered, but there is no free margin for new positions."
+					}
+				}
+			},
+			"Side": {
+				"format": "string",
+				"enum": [
+					"BUY",
+					"SELL"
+				],
+				"type": "string",
+				"example": "BUY"
+			},
+			"Direction": {
+				"description": "If this pending order waits for price to increase or decrease.",
+				"format": "string",
+				"enum": [
+					"UP",
+					"DOWN"
+				],
+				"type": "string"
+			},
+			"OrderBase": {
+				"type": "object",
+				"required": [
+					"id", "symbol", "reality", "login", "side", "volume"
+				],
+				"properties": {
+					"id": {
+						"type": "decimal",
+						"format": "integer",
+						"example": 45676666,
+						"description": "Id of this position."
+					},
+					"symbol": {
+						"type": "string",
+						"example": "BTCUSD",
+						"description": "Instrument symbol (ticker)"
+					},
+					"reality": {
+						"$ref": "#/components/schemas/Reality"
+					},
+					"login": {
+						"$ref": "#/components/schemas/AccountNumber"
+					},
+					"side": {
+						"$ref": "#/components/schemas/Side"
+					},
+					"volume": {
+						"format": "double",
+						"type": "number",
+						"example": 0.01
+					},
+					"takeProfit": {
+						"format": "double",
+						"type": "number",
+						"example": 1234.56
+					},
+					"stopLoss": {
+						"format": "double",
+						"type": "number",
+						"example": 12.62
+					},
+					"comment": {
+						"type": "string",
+						"example": "[tp]"
+					},
+					"closeTime": {
+						"type": "number",
+						"format": "integer",
+						"example": "1893456000000",
+						"description": "Epoch milisesonds. This field indicates that position is already closed."
+					}
+				}
+			},
+			"TradeAction": {
+				"type": "string",
+				"enum": [
+					"OPEN",
+					"UPDATE",
+					"CLOSE",
+					"DELETE_PENDING"
+				],
+				"description": ""
+			},
+			"Mt4Account": {
+				"required": [
+					"reality",
+					"balance",
+					"equity",
+					"leverage",
+					"login",
+					"margin",
+					"freeMargin",
+					"marginLevel"
+				],
+				"allOf": [{
+						"$ref": "#/components/schemas/AccountStatus"
+					},
+					{
+						"type": "object",
+						"properties": {
+							"reality": {
+								"$ref": "#/components/schemas/Reality"
+							},
+							"login": {
+								"$ref": "#/components/schemas/AccountNumber"
+							},
+							"currency": {
+								"type": "string",
+								"example": "BIT"
+							},
+							"leverage": {
+								"format": "int32",
+								"type": "integer",
+								"description": "Leverage multiplier",
+								"example": 100
+							}
+						}
+					}
+				]
+			},
+			"ErrorResponse": {
+				"required": [
+					"code",
+					"message"
+				],
+				"type": "object",
+				"properties": {
+					"code": {
+						"type": "integer",
+						"example": 200
+					},
+					"message": {
+						"type": "string"
+					},
+					"webRequestId": {
+						"type": "string"
+					}
+				}
+			},
+			"OpenMarketOrderModel": {
+				"required": [
+					"Symbol",
+					"Side",
+					"Reality",
+					"IsFIFO",
+					"Volume",
+					"Login"
+				],
+				"type": "object",
+				"properties": {
+					"Reality": {
+						"$ref": "#/components/schemas/Reality"
+					},
+					"Login": {
+						"$ref": "#/components/schemas/AccountNumber"
+					},
+					"Symbol": {
+						"type": "string",
+						"example": "BTCUSD"
+					},
+					"Side": {
+						"$ref": "#/components/schemas/Side"
+					},
+					"Volume": {
+						"format": "double",
+						"type": "number",
+						"example": 0.01
+					},
+					"IsFIFO": {
+						"description": "FIFO requests closes opposite positions before opening new one. NonFIFO order will open new position regardles if client owns opposite position.",
+						"type": "boolean",
+						"example": true
+					},
+					"TakeProfit": {
+						"format": "double",
+						"type": "number",
+						"example": 1234.56
+					},
+					"StopLoss": {
+						"format": "double",
+						"type": "number",
+						"example": 12.34
+					},
+					"RequestId": {
+						"description": "Client defined requestId. Server wiil populate this id in response and trade events.",
+						"type": "string"
+					}
+				}
+			},
+			"MarketOrder": {
+				"allOf": [{
+						"$ref": "#/components/schemas/OrderBase"
+					},
+					{
+						"type": "object",
+						"required": ["openTime", "openPrice", "margin", "profit", "swaps", "openConversionRate"],
+						"properties": {
+							"openTime": {
+								"type": "decimal",
+								"format": "integer",
+								"description": "unixtimestamp in miliseconds"
+							},
+							"openPrice": {
+								"type": "decimal",
+								"format": "double",
+								"example": 4.3564
+							},
+							"margin": {
+								"format": "double",
+								"type": "number",
+								"description": "Balance blocked for this position.",
+								"example": 123.45
+							},
+							"profit": {
+								"format": "double",
+								"type": "number",
+								"description": "current profit/loss from this position.",
+								"example": 123.45
+							},
+							"swaps": {
+								"format": "double",
+								"type": "number",
+								"description": "Overnight maintence of this position.",
+								"example": 123.45
+							},
+							"openConversionRate": {
+								"format": "double",
+								"type": "number",
+								"description": "Convertion rate from position currency to account currency",
+								"example": 1.234567
+							},
+							"closeConversionRate": {
+								"format": "double",
+								"type": "number",
+								"example": 123.45
+							}
+						}
+					}
+				]
+			},
+			"PendingOrder": {
+				"allOf": [{
+						"$ref": "#/components/schemas/OrderBase"
+					},
+					{
+						"type": "object",
+						"required": ["activationPrice", "direction", "createTime"],
+						"properties": {
+							"activationPrice": {
+								"type": "decimal",
+								"format": "double",
+								"example": 23.3345,
+								"description": "price at which this order executes at market"
+							},
+							"direction": {
+								"$ref": "#/components/schemas/Direction"
+							},
+							"createTime": {
+								"format": "integer",
+								"type": "number",
+								"description": "Unix time in miliseconds.",
+								"example": "1533294734000"
+							},
+							"expiryTime": {
+								"format": "integer",
+								"type": "number",
+								"description": "Miliseconds since eopch, when this order ewill be automaticly removed.",
+								"example": "1533300734000"
+							}
+						}
+					}
+				]
+			},
+			"CloseMarketOrderModel": {
+				"required": [
+					"Reality",
+					"Id",
+					"Volume",
+					"Login"
+				],
+				"type": "object",
+				"properties": {
+					"Id": {
+						"format": "int64",
+						"description": "Id of position beeing closed",
+						"type": "integer",
+						"example": 123456
+					},
+					"Volume": {
+						"format": "double",
+						"description": "Volume to close in specified position",
+						"type": "number",
+						"example": 0.01
+					},
+					"RequestId": {
+						"type": "string"
+					},
+					"Login": {
+						"format": "int64",
+						"description": "AccountNumber",
+						"type": "integer",
+						"example": 12345
+					},
+					"Reality": {
+						"format": "string",
+						"description": "Account LIVE or DEMO",
+						"enum": [
+							"DEMO",
+							"LIVE"
+						],
+						"type": "string",
+						"example": "DEMO"
+					}
+				}
+			},
+			"OpenPendingOrderModel": {
+				"required": [
+					"Symbol",
+					"Side",
+					"Reality",
+					"ActivationPrice",
+					"Volume",
+					"Login"
+				],
+				"type": "object",
+				"properties": {
+					"ActivationPrice": {
+						"format": "double",
+						"description": "Stop price - when this order is activated",
+						"type": "number",
+						"example": 1234.56
+					},
+					"ExpiryTime": {
+						"format": "int64",
+						"description": "Miliseconds from unix epoch. Order is canceled at this time if it has not been activated yet",
+						"type": "integer",
+						"example": 1893456000000
+					},
+					"Symbol": {
+						"type": "string",
+						"example": "BTCUSD"
+					},
+					"Volume": {
+						"format": "double",
+						"type": "number",
+						"example": 0.01
+					},
+					"TakeProfit": {
+						"format": "double",
+						"type": "number",
+						"example": 1234.56
+					},
+					"StopLoss": {
+						"format": "double",
+						"type": "number",
+						"example": 12.34
+					},
+					"Side": {
+						"$ref": "#/components/schemas/Side"
+					},
+					"RequestId": {
+						"description": "Client defined requestId. Server wiil populate this id in response and trade events.",
+						"type": "string"
+					},
+					"Login": {
+						"$ref": "#/components/schemas/AccountNumber"
+					},
+					"Reality": {
+						"format": "string",
+						"description": "Account LIVE or DEMO",
+						"enum": [
+							"DEMO",
+							"LIVE"
+						],
+						"type": "string",
+						"example": "DEMO"
+					}
+				}
+			},
+			"DeletePendingOrderModel": {
+				"required": [
+					"Reality",
+					"Id",
+					"Login"
+				],
+				"type": "object",
+				"properties": {
+					"Id": {
+						"format": "int64",
+						"description": "Id of coresponding order",
+						"type": "integer",
+						"example": 123456
+					},
+					"RequestId": {
+						"type": "string"
+					},
+					"Login": {
+						"format": "int64",
+						"description": "AccountNumber",
+						"type": "integer",
+						"example": 12345
+					},
+					"Reality": {
+						"format": "string",
+						"description": "Account LIVE or DEMO",
+						"enum": [
+							"DEMO",
+							"LIVE"
+						],
+						"type": "string",
+						"example": "DEMO"
+					}
+				}
+			},
+			"UpdateOrderModel": {
+				"required": [
+					"Reality",
+					"Id",
+					"Login"
+				],
+				"type": "object",
+				"properties": {
+					"Id": {
+						"format": "int64",
+						"description": "Id of order beeing updated",
+						"type": "integer",
+						"example": 123456
+					},
+					"TakeProfit": {
+						"format": "double",
+						"type": "number",
+						"example": 1234.56
+					},
+					"StopLoss": {
+						"format": "double",
+						"type": "number",
+						"example": 12.34
+					},
+					"ActivationPrice": {
+						"format": "double",
+						"type": "number",
+						"example": 1122.33
+					},
+					"ExpiryTime": {
+						"format": "int64",
+						"type": "integer",
+						"example": 1893456000000
+					},
+					"Volume": {
+						"format": "double",
+						"description": "Volume to close in the ",
+						"type": "number",
+						"example": 0.01
+					},
+					"RequestId": {
+						"type": "string"
+					},
+					"Login": {
+						"format": "int64",
+						"description": "AccountNumber",
+						"type": "integer",
+						"example": 12345
+					},
+					"Reality": {
+						"format": "string",
+						"description": "Account LIVE or DEMO",
+						"enum": [
+							"DEMO",
+							"LIVE"
+						],
+						"type": "string",
+						"example": "DEMO"
+					}
+				}
+			},
+			"CloseAllBySymbolModel": {
+				"required": [
+					"Symbol",
+					"Reality",
+					"Login"
+				],
+				"type": "object",
+				"properties": {
+					"Symbol": {
+						"type": "string",
+						"example": "BTCUSD"
+					},
+					"RequestId": {
+						"type": "string"
+					},
+					"Login": {
+						"format": "int64",
+						"description": "AccountNumber",
+						"type": "integer",
+						"example": 12345
+					},
+					"Reality": {
+						"format": "string",
+						"description": "Account LIVE or DEMO",
+						"enum": [
+							"DEMO",
+							"LIVE"
+						],
+						"type": "string",
+						"example": "DEMO"
+					}
+				}
+			},
+			"CloseManyModel": {
+				"required": [
+					"Symbol",
+					"OrderIds",
+					"Reality",
+					"Login"
+				],
+				"type": "object",
+				"properties": {
+					"Symbol": {
+						"type": "string",
+						"example": "BTCUSD"
+					},
+					"OrderIds": {
+						"type": "array",
+						"items": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"RequestId": {
+						"type": "string"
+					},
+					"Login": {
+						"format": "int64",
+						"description": "AccountNumber",
+						"type": "integer",
+						"example": 12345
+					},
+					"Reality": {
+						"format": "string",
+						"description": "Account LIVE or DEMO",
+						"enum": [
+							"DEMO",
+							"LIVE"
+						],
+						"type": "string",
+						"example": "DEMO"
+					}
+				}
+			},
+			"GetActiveOrdersModel": {
+				"required": [
+					"Reality",
+					"Login"
+				],
+				"type": "object",
+				"properties": {
+					"Login": {
+						"format": "int64",
+						"description": "AccountNumber",
+						"type": "integer",
+						"example": 12345
+					},
+					"Reality": {
+						"format": "string",
+						"description": "Account LIVE or DEMO",
+						"enum": [
+							"DEMO",
+							"LIVE"
+						],
+						"type": "string",
+						"example": "DEMO"
+					}
+				}
+			},
+			"GetHistoryOrdersModel": {
+				"required": [
+					"Reality",
+					"TimeFrom",
+					"TimeTo",
+					"Login"
+				],
+				"type": "object",
+				"properties": {
+					"TimeFrom": {
+						"format": "int64",
+						"description": "Milliseconds from unix epoch",
+						"type": "integer",
+						"example": 1262304000000
+					},
+					"TimeTo": {
+						"format": "int64",
+						"type": "integer",
+						"example": 1893456000000
+					},
+					"Login": {
+						"format": "int64",
+						"description": "AccountNumber",
+						"type": "integer",
+						"example": 12345
+					},
+					"Reality": {
+						"format": "string",
+						"description": "Account LIVE or DEMO",
+						"enum": [
+							"DEMO",
+							"LIVE"
+						],
+						"type": "string",
+						"example": "DEMO"
+					}
+				}
+			},
+			"MarketActions": {
+				"type": "array",
+				"description": "List of positions modified or created with this request.",
+				"items": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"$ref": "#/components/schemas/TradeAction"
+						},
+						"order": {
+							"$ref": "#/components/schemas/MarketOrder"
+						}
+					}
+				}
+			},
+			"ResponseModel_MarketExecutionReport_": {
+				"required": [
+					"data",
+					"code",
+					"message"
+				],
+				"type": "object",
+				"properties": {
+					"data": {
+						"description": "List of positions modified or created with this request.",
+						"type": "object",
+						"properties": {
+							"accountStatus": {
+								"$ref": "#/components/schemas/AccountStatus"
+							},
+							"marketOrders": {
+								"$ref": "#/components/schemas/MarketActions"
+							}
+						}
+					},
+					"code": {
+						"type": "integer",
+						"example": 200
+					},
+					"message": {
+						"type": "string"
+					},
+					"webRequestId": {
+						"type": "string"
+					}
+				}
+			},
+			"OK_MarketExecutionReport_": {
+				"description": "OK",
+				"type": "object",
+				"properties": {
+					"data": {
+						"description": "List of positions modified or created with this request.",
+						"type": "object",
+						"properties": {
+							"accountStatus": {
+								"$ref": "#/components/schemas/AccountStatus"
+							},
+							"marketOrders": {
+								"$ref": "#/components/schemas/MarketActions"
+							}
+						}
+					},
+					"code": {
+						"type": "integer",
+						"example": 200
+					},
+					"message": {
+						"type": "string"
+					},
+					"webRequestId": {
+						"type": "string"
+					}
+				}
+			},
+			"PendingActions": {
+				"type": "array",
+				"description": "List of pending orders modified or created with this request.",
+				"items": {
+					"type": "object",
+					"properties": {
+						"action": {
+							"$ref": "#/components/schemas/TradeAction"
+						},
+						"order": {
+							"$ref": "#/components/schemas/PendingOrder"
+						}
+					}
+				}
+			},
+			"ResponseModel_PendingExecutionReport_": {
+				"required": [
+					"data",
+					"code",
+					"message"
+				],
+				"type": "object",
+				"properties": {
+					"data": {
+						"description": "List of pending orders modified or created with this request.",
+						"type": "object",
+						"properties": {
+							"accountStatus": {
+								"$ref": "#/components/schemas/AccountStatus"
+							},
+							"pendingOrders": {
+								"$ref": "#/components/schemas/PendingActions"
+							}
+						}
+					},
+					"code": {
+						"type": "integer",
+						"example": 200
+					},
+					"message": {
+						"type": "string"
+					},
+					"webRequestId": {
+						"type": "string"
+					}
+				}
+			},
+			"OK_PendingExecutionReport_": {
+				"description": "OK",
+				"type": "object",
+				"properties": {
+					"data": {
+						"description": "List of pending orders modified or created with this request.",
+						"type": "object",
+						"properties": {
+							"accountStatus": {
+								"$ref": "#/components/schemas/AccountStatus"
+							},
+							"pendingOrders": {
+								"$ref": "#/components/schemas/PendingActions"
+							}
+						}
+					},
+					"code": {
+						"type": "integer",
+						"example": 200
+					},
+					"message": {
+						"type": "string"
+					},
+					"webRequestId": {
+						"type": "string"
+					}
+				}
+			},
+			"OK_OrdersState_": {
+				"type": "array",
+				"description": "list of orders",
+				"items": {
+					"type": "object",
+						"required": ["marketOrders", "pendingOrders"],
+						"properties": {
+							"marketOrders": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/MarketOrder"
+								}
+							},
+							"pendingOrders": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/PendingOrder"
+								}
+							}
+						}
+				}
+			}
+		}
+	},
+	"security": [{
+		"bearerAuth": [
+			"bearerAuth"
+		]
+	}]
+}

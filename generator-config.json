@@ -1,0 +1,5 @@
+{
+	"packageName": "SimpleFx.Client.Generated",
+	"packageVersion": "1.0.0",
+	"targetFramework": "netstandard2.0"
+}
