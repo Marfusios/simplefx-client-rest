@@ -1,5 +1,5 @@
 ![Logo](simplefx-logo.png)
-# SimpleFX REST API client [![Build Status](https://travis-ci.com/Marfusios/simplefx-client-rest.svg?branch=master)](https://travis-ci.org/Marfusios/simplefx-client-rest) [![NuGet version](https://badge.fury.io/nu/SimpleFx.Client.Rest.Generated.svg)](https://badge.fury.io/nu/SimpleFx.Client.Rest.Generated)
+# SimpleFX REST API client [![Build Status](https://travis-ci.com/Marfusios/simplefx-client-rest.svg?branch=master)](https://travis-ci.com/Marfusios/simplefx-client-rest) [![NuGet version](https://badge.fury.io/nu/SimpleFx.Client.Rest.Generated.svg)](https://badge.fury.io/nu/SimpleFx.Client.Rest.Generated)
 
 This is a C# implementation of the SimpleFX REST API, automatically generated via [OpenAPI generator](https://openapi-generator.tech/) found here:
 
